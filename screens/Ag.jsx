@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { Appbar, Button, Divider, TextInput } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { Entypo } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const Ag = ({ navigation }) => {
   const Ag = [1212, 545, 465, 48, 79, 9, 7, 78];
@@ -20,6 +21,69 @@ const Ag = ({ navigation }) => {
   const [modalDelete, setModalDelete] = useState(false);
   const [listVisible, setListVisible] = useState(false);
   const [mName, setMName] = useState("");
+  const [groupe, setGroupe] = useState("");
+  const [type , setType] = useState("");
+  const [id,setId] = useState("")
+
+  const [date, setDate] = useState(new Date(1598051730000));
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+
+  const onChange = (e,selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setDate(currentDate);
+    console.log(date)
+  };
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+  };
+
+  const showTimepicker = () => {
+    showMode('time');
+  };
+
+
+  const Datetime = ()=>(
+      <View style={{marginTop:30}}>
+        <View style={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"center"}}>
+          <Button onPress={showDatepicker}>Date</Button>
+          <Button onPress={showTimepicker} >Time</Button>
+        </View>
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />
+        )}
+      </View>
+  )
+  useEffect(()=>{
+    console.log(id)
+  },[id])
+        
+  const sendData = ()=>{
+    fetch("http://localhost:8000/ag",{
+      headers:{
+        "content-type":"application/json"
+      },
+      method:"POST",
+      body:JSON.stringify({
+        mName,groupe,type,date
+      })
+    })
+  }
+
 
   return (
     <LinearGradient colors={["rgba(0, 0, 0, 1)", "rgba(226, 172, 13, 0.9)"]}>
@@ -71,7 +135,7 @@ const Ag = ({ navigation }) => {
 
                   <View style={{ display: "flex", flexDirection: "row" }}>
                     <TouchableOpacity
-                      onPress={() => navigation.navigate("qrcode")}
+                      onPress={() => navigation.navigate("qrcode",{setId:setId})}
                     >
                       <Entypo
                         name="add-user"
@@ -101,22 +165,22 @@ const Ag = ({ navigation }) => {
           />
           <TextInput
             label="Groupe"
-            value={mName}
-            onChangeText={(text) => setMName(text)}
+            value={groupe}
+            onChangeText={(text) => setGroupe(text)}
             style={{ backgroundColor: "transparent" }}
           />
           <TextInput
             label="Pole"
-            value={mName}
-            onChangeText={(text) => setMName(text)}
+            value={type}
+            onChangeText={(text) => setType(text)}
             style={{ backgroundColor: "transparent" }}
           />
-          <Button style={{ marginTop: 30 }} mode="contained">
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Agd")}
-            ></TouchableOpacity>
+          <TouchableOpacity>
+          {/* <Button style={{ marginTop: 30 }} mode="contained" onPress={() => navigation.navigate("Agd")}>
             Date
-          </Button>
+          </Button> */}
+          <Datetime />
+          </TouchableOpacity>
 
           <View
             style={{
@@ -134,47 +198,7 @@ const Ag = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-      <Modal visible={modalEdit} animationType="slide" transparent={true}>
-        <View style={{ ...styles.modalView }}>
-          <Text style={styles.modalTitle}>Edit Ag</Text>
-          <TextInput
-            label="Name"
-            value={mName}
-            onChangeText={(text) => setMName(text)}
-            style={{ backgroundColor: "transparent" }}
-          />
-          <TextInput
-            label="Groupe"
-            value={mName}
-            onChangeText={(text) => setMName(text)}
-            style={{ backgroundColor: "transparent" }}
-          />
-          <TextInput
-            label="Pole"
-            value={mName}
-            onChangeText={(text) => setMName(text)}
-            style={{ backgroundColor: "transparent" }}
-          />
-
-          <Button style={{ marginTop: 30 }} mode="contained">
-            Date
-          </Button>
-          <View
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              alignItems: "center",
-              flexDirection: "row",
-              marginTop: 30,
-            }}
-          >
-            <Button mode="text">SAVE</Button>
-            <Button mode="text" onPress={() => setModalEdit(false)}>
-              Close
-            </Button>
-          </View>
-        </View>
-      </Modal>
+     
       <Modal visible={modalDelete} animationType="slide" transparent={true}>
         <View style={{ ...styles.modalView, marginTop: "40%" }}>
           <Text style={styles.modalTitle}>Delete Ag</Text>

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
-export default function App() {
+export default function App({route}) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+
+  const { setId } = route.params;
 
   useEffect(() => {
     (async () => {
@@ -16,6 +18,7 @@ export default function App() {
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     alert(`Bar code data is ${data}`);
+    setId(data)
   };
 
   if (hasPermission === null) {
